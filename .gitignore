@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+env
+emission_data
+.vscode
+crx.*
+*.dat
