@@ -14,8 +14,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import StandardScaler, LabelBinarizer, LabelEncoder
-from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelBinarizer, LabelEncoder
 import pickle
 
 #! this program will develop an linear reqression model
@@ -32,17 +31,6 @@ for file in os.listdir('.\\emission_data'):
 df1 = pd.concat(li, axis=0, ignore_index=True)
 # print(df1.head)
 
-#! neer scale the dataset like done in the commented code below
-#! scaling beforehand causes data leakage into the predictions
-# * three different sclers are implemented to experiment
-# ss = StandardScaler()
-# df1 = pd.DataFrame(ss.fit_transform(df1), index=df1.index, columns=df1.columns)
-# mms = MinMaxScaler()
-# df1 = pd.DataFrame(mms.fit_transform(
-#     df1), index=df1.index, columns=df1.columns)
-# rbs = RobustScaler()
-# df1 = pd.DataFrame(rbs.fit_transform(
-#     df1), index=df1.index, columns=df1.columns)
 
 df1.plot(subplots=True, layout=(6, 2))
 plt.show()
@@ -66,16 +54,19 @@ Ytrain, Ytest = Y.iloc[:int(len(Y.index)*split)
 Ytrain = Ytrain.to_numpy()
 Ytrain = Ytrain.reshape((-1, 1))
 
-rbsxt = RobustScaler()
-rbsyt = RobustScaler()
-rbsxte = RobustScaler()
+rbs = RobustScaler()
+rbs.fit(Xtrain)
 
-Xtrain = pd.DataFrame(rbsxt.fit_transform(
+rbsy = RobustScaler()
+rbsy.fit(Ytrain)
+
+Xtrain = pd.DataFrame(rbs.transform(
     Xtrain), index=Xtrain.index, columns=Xtrain.columns)
-Ytrain = pd.DataFrame(rbsyt.fit_transform(
-    Ytrain))  # , index=Ytrain.index, columns=Ytrain.columns)
-Xtest = pd.DataFrame(rbsxte.fit_transform(
+Xtest = pd.DataFrame(rbs.transform(
     Xtest), index=Xtest.index, columns=Xtest.columns)
+Ytrain = pd.DataFrame(rbsy.transform(
+    Ytrain))  # , index=Ytrain.index, columns=Ytrain.columns)
+
 
 if not os.path.isfile('.\\model.dat'):
     model = LinearRegression()
@@ -88,7 +79,7 @@ else:
 ypred = model.predict(Xtest)
 ypred = ypred.reshape((-1, 1))
 
-ypred = rbsyt.inverse_transform(ypred)
+ypred = rbsy.inverse_transform(ypred)
 rmse = sqrt(mean_squared_error(Ytest, ypred))
 print(rmse)
 

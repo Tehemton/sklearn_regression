@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler, LabelBinarizer, LabelEncoder
 from sklearn.model_selection import train_test_split
 
 #! here we load the same credit approval dataset used for XGBClassifier
-#! Logistic regression gives us an accuracy of 83.09%
+#! Logistic regression gives us an accuracy of 82.12%
 #! XGBClassifier gave an accuracy of 85.02%
 
 df1 = pd.read_csv('crx.data', delimiter=',')
@@ -38,9 +38,11 @@ Xtest[categorical_cols] = Xtest[categorical_cols].apply(
     lambda col: le.fit_transform(col))
 # print(Xtrain.head)
 
-Xtrain = pd.DataFrame(ss.fit_transform(
+# fit the standard scaler on the train set
+ss.fit(Xtrain)
+Xtrain = pd.DataFrame(ss.transform(
     Xtrain), index=Xtrain.index, columns=Xtrain.columns)
-Xtest = pd.DataFrame(ss.fit_transform(
+Xtest = pd.DataFrame(ss.transform(
     Xtest), index=Xtest.index, columns=Xtest.columns)
 
 Ytrain = pd.DataFrame(lb.fit_transform(
